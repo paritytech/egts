@@ -18,6 +18,9 @@ if (!dir) {
 
 const filter = flags.filter ? new Set(flags.filter.split(",")) : new Set()
 
+const controller = new AbortController()
+const { signal } = controller
+
 await validateIgnoreFile(dir, ignore)
 const ignoreFile = await Deno.readTextFile(path.join(dir, ignore))
 const ignoredFiles = new Set(ignoreFile.split("\n"))
@@ -30,9 +33,6 @@ const sourceFileNames = Array.from(Deno.readDirSync(dir))
     && ((filter.size > 0 && filter.has(e.name)) || filter.size === 0)
   )
   .map((f) => f.name)
-
-const controller = new AbortController()
-const { signal } = controller
 
 async function shutdown(exitCode: number) {
   console.log(`\nshutting down with exitcode ${exitCode}`)
