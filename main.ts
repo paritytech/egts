@@ -67,7 +67,7 @@ const runner = browser
   : await runWithDeno({ reloadUrl: "http://localhost:4646", signal, results })
 const paths = sourceFileNames.map((fileName) => [dir, fileName] as const)
 
-await run({ paths, runner, concurrency })
+await run({ paths, runner, concurrency, signal })
 const failedTests = results
   .filter(([_, exitCode]) => exitCode !== 0)
   .map(([fileName, _]) => fileName)

@@ -11,11 +11,15 @@ export interface RunOptions {
   paths: (readonly [dir: string, fileName: string])[]
   concurrency: number
   runner: (dir: string, fileName: string) => Promise<void>
+  signal: AbortSignal
 }
 
-export async function run({ paths, concurrency, runner }: RunOptions) {
+export async function run({ paths, concurrency, runner, signal }: RunOptions) {
   const runQueue = new PQueue({ concurrency })
   runQueue.addAll(paths.map(([dir, fileName]) => () => runner(dir, fileName)))
+
+  signal.addEventListener("abort", () => runQueue.clear())
+
   await runQueue.onIdle()
 }
 
@@ -68,15 +72,17 @@ export async function runWithBrowser(
 export interface RunWithDenoOptions {
   results: (readonly [fileName: string, exitCode: number])[]
   reloadUrl: string
+  signal: AbortSignal
 }
 
-export async function runWithDeno({ reloadUrl, results }: RunWithDenoOptions) {
+export async function runWithDeno({ reloadUrl, results, signal }: RunWithDenoOptions) {
   return (async (dir: string, fileName: string) => {
     const result = await executionWrapper(fileName, async (outputBuffer) => {
       const command = new Deno.Command(Deno.execPath(), {
         args: ["run", "-A", `-r=${reloadUrl}`, `${dir}/${fileName}`],
         stdout: "piped",
         stderr: "piped",
+        signal,
       })
 
       const task = command.spawn()
