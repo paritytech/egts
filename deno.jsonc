@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "checkJs": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "useUnknownInCatchVariables": true
+  },
+  "include": ["."],
+  "lock": false,
+  "lint": {
+    "files": {
+      "exclude": [],
+      "include": ["."]
+    },
+    "rules": {
+      "exclude": [
+        "no-empty-interface",
+        "no-explicit-any",
+        "no-namespace",
+        "no-empty",
+        "no-extra-semi",
+        "ban-types",
+        "require-await"
+      ],
+      "tags": ["recommended"]
+    }
+  },
+  "tasks": {
+    "udd": "deno run -A _tasks/udd.ts"
+  }
+}
