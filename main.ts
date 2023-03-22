@@ -21,7 +21,6 @@ const filter = flags.filter ? new Set(flags.filter.split(",")) : new Set()
 const controller = new AbortController()
 const { signal } = controller
 
-await validateIgnoreFile(dir, ignore)
 const ignoreFile = await Deno.readTextFile(path.join(dir, ignore))
 const ignoredFiles = new Set(ignoreFile.split("\n"))
 
@@ -65,7 +64,7 @@ const importMapUrl = importMap
 const results: [fileName: string, exitCode: number][] = []
 const runner = browser
   ? await runWithBrowser({ createBrowser, importMapUrl, results })
-  : await runWithDeno({ reloadUrl: "http://localhost:4646", results })
+  : await runWithDeno({ reloadUrl: "http://localhost:4646", signal, results })
 const paths = sourceFileNames.map((fileName) => [dir, fileName] as const)
 
 await run({ paths, runner, concurrency })
@@ -84,26 +83,4 @@ if (isFailed) {
   shutdown(1)
 } else {
   shutdown(0)
-}
-
-async function validateIgnoreFile(dir: string, ignoreFile: string) {
-  const files = (await Deno.readTextFile(`${dir}/${ignoreFile}`))
-    .split("\n")
-    .filter(Boolean)
-
-  const result = await Promise.all(
-    files.map((fileName) => `${dir}/${fileName}`)
-      .map((path) =>
-        Deno.stat(path)
-          .then(() => [path, true] as const)
-          .catch(() => [path, false] as const)
-      ),
-  )
-
-  const nonExistentFiles = result.filter(([_, exists]) => !exists)
-  if (nonExistentFiles.length > 0) {
-    console.log("trun preflight step failed -- unknown files specified in ignore:")
-    console.error(nonExistentFiles.map(([path, _]) => path))
-    shutdown(1)
-  }
 }
