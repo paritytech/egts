@@ -4,12 +4,26 @@ import * as path from "./deps/std/path.ts"
 import { run, runWithBrowser, runWithDeno } from "./run.ts"
 
 const flags = parse(Deno.args, {
-  string: ["dir", "concurrency", "ignore", "import-map", "filter", "output"],
-  boolean: ["browser"],
-  default: { ignore: ".ignore" },
+  string: [
+    "browser-exec-path",
+    "concurrency",
+    "dir",
+    "filter",
+    "ignore",
+    "import-map",
+    "output",
+    "reload-url",
+  ],
+  boolean: ["browser", "headless"],
+  default: {
+    "browser-exec-path": "/usr/bin/chromium",
+    headless: true,
+    ignore: ".ignore",
+    "reload-url": "http://localhost:4646",
+  },
 })
 
-const { ignore, dir, browser, output } = flags
+const { ignore, dir, browser, output, headless } = flags
 const importMap = flags["import-map"]
 const concurrency = flags.concurrency ? Number(flags.concurrency) : Infinity
 if (!dir) {
@@ -26,10 +40,10 @@ const ignoredFiles = new Set(ignoreFile.split("\n"))
 
 const sourceFileNames = Array.from(Deno.readDirSync(dir))
   .filter((e) =>
-    e.name.match(/^.*\.ts$/g)
+    /\.ts$/.test(e.name)
     && e.isFile
     && !ignoredFiles.has(e.name)
-    && ((filter.size > 0 && filter.has(e.name)) || filter.size === 0)
+    && (!filter.size || filter.has(e.name))
   )
   .map((f) => f.name)
 
@@ -45,8 +59,8 @@ Deno.addSignalListener("SIGTERM", () => shutdown(1))
 
 const createBrowser = async () => {
   const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: "/usr/bin/chromium",
+    headless,
+    executablePath: flags["browser-exec-path"],
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   })
 
@@ -58,13 +72,13 @@ const createBrowser = async () => {
 }
 
 const importMapUrl = importMap
-  ? path.toFileUrl(`${Deno.cwd()}/${importMap}`)
+  ? path.toFileUrl(path.resolve(importMap))
   : undefined
 
 const results: [fileName: string, exitCode: number][] = []
 const runner = browser
   ? await runWithBrowser({ createBrowser, importMapUrl, results })
-  : await runWithDeno({ reloadUrl: "http://localhost:4646", signal, results })
+  : await runWithDeno({ reloadUrl: flags["reload-url"], signal, results })
 const paths = sourceFileNames.map((fileName) => [dir, fileName] as const)
 
 await run({ paths, runner, concurrency, signal })
