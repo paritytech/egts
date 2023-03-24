@@ -1,6 +1,6 @@
 import * as esbuild from "./deps/esbuild.ts"
 import { denoPlugin } from "./deps/esbuild_deno_loader.ts"
-import PQueue from "./deps/pqueue.ts"
+import { PromiseQueue } from "./deps/pqueue.ts"
 import { Browser } from "./deps/puppeteer.ts"
 import { deferred } from "./deps/std/async.ts"
 import { Buffer, readLines } from "./deps/std/io.ts"
@@ -15,7 +15,7 @@ export interface RunOptions {
 }
 
 export async function run({ paths, concurrency, runner, signal }: RunOptions) {
-  const runQueue = new PQueue({ concurrency })
+  const runQueue = new PromiseQueue({ concurrency })
   runQueue.addAll(paths.map(([dir, fileName]) => () => runner(dir, fileName)))
 
   signal.addEventListener("abort", () => runQueue.clear())
@@ -59,7 +59,8 @@ export async function runWithBrowser(
         exitCode.resolve(Number(args))
       })
 
-      const code = wrapCode(`${consoleJs}\n${buildResult.outputFiles[0]?.text!}`)
+      await page.addScriptTag({ content: consoleJs, type: "module" })
+      const code = wrapCode(buildResult.outputFiles[0]?.text!)
       await page.addScriptTag({ content: code, type: "module" })
 
       return exitCode
@@ -71,7 +72,7 @@ export async function runWithBrowser(
 
 export interface RunWithDenoOptions {
   results: (readonly [fileName: string, exitCode: number])[]
-  reloadUrl: string
+  reloadUrl?: string
   signal: AbortSignal
 }
 
@@ -79,7 +80,9 @@ export async function runWithDeno({ reloadUrl, results, signal }: RunWithDenoOpt
   return (async (dir: string, fileName: string) => {
     const result = await executionWrapper(fileName, async (outputBuffer) => {
       const command = new Deno.Command(Deno.execPath(), {
-        args: ["run", "-A", `-r=${reloadUrl}`, `${dir}/${fileName}`],
+        args: ["run", "-A"]
+          .concat(reloadUrl ? [`-r=${reloadUrl}`] : [])
+          .concat([`${dir}/${fileName}`]),
         stdout: "piped",
         stderr: "piped",
         signal,

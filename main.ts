@@ -12,15 +12,15 @@ const flags = parse(Deno.args, {
     "ignore",
     "import-map",
     "output",
-    "reload-url",
+    "reload",
   ],
   boolean: ["browser", "headless"],
   default: {
     "browser-exec-path": "/usr/bin/chromium",
     headless: true,
     ignore: ".ignore",
-    "reload-url": "http://localhost:4646",
   },
+  alias: { reload: "r" },
 })
 
 const { ignore, dir, browser, output, headless } = flags
@@ -78,7 +78,7 @@ const importMapUrl = importMap
 const results: [fileName: string, exitCode: number][] = []
 const runner = browser
   ? await runWithBrowser({ createBrowser, importMapUrl, results })
-  : await runWithDeno({ reloadUrl: flags["reload-url"], signal, results })
+  : await runWithDeno({ reloadUrl: flags["reload"], signal, results })
 const paths = sourceFileNames.map((fileName) => [dir, fileName] as const)
 
 await run({ paths, runner, concurrency, signal })

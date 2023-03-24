@@ -5,7 +5,7 @@ CLI test utility for Deno and the Browser
 ## Flags
 
 ```sh
---browser           # whether to run tests headlessly in the browser
+--browser           # whether to run tests in the browser
 --browser-exec-path # path to the browser binary
 --concurrency       # number of tests to be run in parallel
 --dir               # directory to run tests -- relative to cwd
