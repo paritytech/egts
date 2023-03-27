@@ -1,0 +1,17 @@
+name: Sanity Test
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches:
+      - main
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          dir: examples
+          concurrency: "1"

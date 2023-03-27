@@ -1,0 +1,39 @@
+name: "trun"
+description: "CLI test utility for Deno and the Browser"
+inputs:
+  browser:
+    description: "whether to run tests in the browser"
+  browser-exec-path:
+    description: "path to the browser binary"
+  concurrency:
+    description: "number of tests to be run in parallel"
+  dir:
+    required: true
+    description: "directory to run tests -- relative to cwd"
+  filter:
+    description: "comma delimitated string of files to run -- relative to dir"
+  headless:
+    description: "whether to run the browser in headless mode"
+  ignore:
+    description: "name of ignore file -- relative to dir"
+  importMap:
+    description: "name of deno import map file -- relative to cwd"
+  output:
+    description: "name of file to output test results to -- relative to cwd"
+  reload-url:
+    description: "url that is passed to the -r flag in deno run"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.browser }}
+    - ${{ inputs.browser-exec-path }}
+    - ${{ inputs.concurrency }}
+    - ${{ inputs.dir }}
+    - ${{ inputs.filter }}
+    - ${{ inputs.headless }}
+    - ${{ inputs.ignore }}
+    - ${{ inputs.importMap }}
+    - ${{ inputs.output }}
+    - ${{ inputs.reload-url }}
