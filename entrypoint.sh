@@ -2,8 +2,6 @@
 
 echo "test args $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10}"
 
-
-
 browser=""
 if ! [[ -z $1 ]]; then
   browser="--browser"
@@ -55,7 +53,5 @@ if ! [[ -z ${10} ]]; then
   reload_url="--reload-url ${10}"
   deno_reload="-r=${10}"
 fi
-
-echo "deno run -A $deno_reload /trun/main.ts $browser $browser_exec_path $concurrency $dir $filter $headless $ignore $import_map $output $reload_url"
 
 deno run -A $deno_reload /trun/main.ts $browser $browser_exec_path $concurrency $dir $filter $headless $ignore $import_map $output $reload_url
