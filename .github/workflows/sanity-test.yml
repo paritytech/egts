@@ -15,3 +15,5 @@ jobs:
         with:
           dir: examples
           concurrency: "1"
+          browser: true
+          output: "test.json"

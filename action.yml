@@ -27,13 +27,13 @@ runs:
   using: "docker"
   image: "Dockerfile"
   args:
-    - ${{ inputs.browser }}
-    - ${{ inputs.browser-exec-path }}
-    - ${{ inputs.concurrency }}
-    - ${{ inputs.dir }}
-    - ${{ inputs.filter }}
-    - ${{ inputs.headless }}
-    - ${{ inputs.ignore }}
-    - ${{ inputs.importMap }}
-    - ${{ inputs.output }}
-    - ${{ inputs.reload-url }}
+    - ${{ inputs.browser }} # 1
+    - ${{ inputs.browser-exec-path }} # 2
+    - ${{ inputs.concurrency }} # 3
+    - ${{ inputs.dir }} # 4
+    - ${{ inputs.filter }} # 5
+    - ${{ inputs.headless }} # 6
+    - ${{ inputs.ignore }} # 7
+    - ${{ inputs.importMap }} # 8
+    - ${{ inputs.output }} # 9
+    - ${{ inputs.reload-url }} # 10
