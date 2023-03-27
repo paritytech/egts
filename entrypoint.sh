@@ -14,4 +14,6 @@ output=[$9] || "--output $9"
 reload_url=[${10}] || "--reload-url ${10}"
 deno_reload=[${10}] || "-r=${10}"
 
+echo "deno run -A $deno_reload /trun/main.ts $browser $browser_exec_path $concurrency $dir $filter $headless $ignore $import_map $output $reload_url"
+
 deno run -A $deno_reload /trun/main.ts $browser $browser_exec_path $concurrency $dir $filter $headless $ignore $import_map $output $reload_url
