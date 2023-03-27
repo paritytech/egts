@@ -13,8 +13,7 @@
   "deno.suggest.imports.hosts": {
     "https://deno.land": true,
     "https://x.nest.land": true,
-    "https://crux.land": true,
-    "http://localhost:4646": false
+    "https://crux.land": true
   },
   "deno.enable": true,
   "deno.lint": true,

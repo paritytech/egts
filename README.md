@@ -14,5 +14,5 @@ CLI test utility for Deno and the Browser
 --ignore            # name of ignore file -- relative to dir
 --import-map        # name of deno import map file -- relative to cwd
 --output            # name of file to output test results to -- relative to cwd
---reload-url        # url that is passed to the -r flag in deno run
+--reload            # passed through to deno
 ```

@@ -78,7 +78,7 @@ const importMapUrl = importMap
 const results: [fileName: string, exitCode: number][] = []
 const runner = browser
   ? await runWithBrowser({ createBrowser, importMapUrl, results })
-  : await runWithDeno({ reloadUrl: flags["reload"], signal, results })
+  : await runWithDeno({ reloadUrl: flags.reload, signal, results })
 const paths = sourceFileNames.map((fileName) => [dir, fileName] as const)
 
 await run({ paths, runner, concurrency, signal })
