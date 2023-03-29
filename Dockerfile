@@ -1,10 +1,5 @@
 FROM denoland/deno:latest
 
-ARG POLKADOT_VERSION=v0.9.37
-ARG POLKADOT_PARACHAIN_VERSION=v0.9.370
-ARG ZOMBIENET_VERSION=v1.3.37
-ARG SUBSTRATE_CONTRACTS_NODE_VERSION=v0.24.0
-
 ENV PATH=${DENO_INSTALL}/bin:${PATH} \
     DENO_DIR=/home/vscode/.cache/deno
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
@@ -58,14 +53,6 @@ RUN apt-get -qq update \
 
 RUN curl -fsSL https://dprint.dev/install.sh | DPRINT_INSTALL=/usr/local sh \
     && PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@16.2.0/install.ts \
-    && curl -fsSL -o /usr/local/bin/polkadot https://github.com/paritytech/polkadot/releases/download/${POLKADOT_VERSION}/polkadot \
-    && chmod +x /usr/local/bin/polkadot \
-    && curl -fsSL -o /usr/local/bin/polkadot-parachain https://github.com/paritytech/cumulus/releases/download/${POLKADOT_PARACHAIN_VERSION}/polkadot-parachain \
-    && chmod +x /usr/local/bin/polkadot-parachain \
-    && curl -fsSL -o /usr/local/bin/zombienet-linux-x64 https://github.com/paritytech/zombienet/releases/download/${ZOMBIENET_VERSION}/zombienet-linux-x64 \
-    && chmod +x /usr/local/bin/zombienet-linux-x64 \
-    && curl -fsSL https://github.com/paritytech/substrate-contracts-node/releases/download/${SUBSTRATE_CONTRACTS_NODE_VERSION}/substrate-contracts-node-linux.tar.gz | tar -zx \
-    && mv ./artifacts/substrate-contracts-node-linux/substrate-contracts-node /usr/local/bin/ \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 
 WORKDIR /trun
