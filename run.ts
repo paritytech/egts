@@ -7,7 +7,7 @@ import { Buffer, readLines } from "./deps/std/io.ts"
 import { readerFromStreamReader, writeAll } from "./deps/std/streams.ts"
 
 export interface RunOptions {
-  paths: ReadonlyArray<string>
+  paths: readonly string[]
   concurrency: number
   runner: (filePath: string) => Promise<void>
   signal: AbortSignal
@@ -25,7 +25,7 @@ export async function run({ paths, concurrency, runner, signal }: RunOptions) {
 export interface RunWithBrowserOptions {
   createBrowser: () => Promise<Browser>
   importMapUrl?: URL
-  results: (readonly [fileName: string, exitCode: number])[]
+  results: (readonly [path: string, exitCode: number])[]
 }
 
 export async function runWithBrowser(
@@ -70,7 +70,7 @@ export async function runWithBrowser(
 }
 
 export interface RunWithDenoOptions {
-  results: (readonly [fileName: string, exitCode: number])[]
+  results: (readonly [path: string, exitCode: number])[]
   reloadUrl?: string
   signal: AbortSignal
 }
@@ -103,20 +103,20 @@ export async function runWithDeno({ reloadUrl, results, signal }: RunWithDenoOpt
   })
 }
 
-async function executionWrapper(fileName: string, run: (outputBuffer: Buffer) => Promise<number>) {
-  console.log(`running ${fileName}`)
+async function executionWrapper(path: string, run: (outputBuffer: Buffer) => Promise<number>) {
+  console.log(`running ${path}`)
 
   const outputBuffer = new Buffer()
   const exitCode = await run(outputBuffer)
 
   if (exitCode !== 0) {
-    console.log(`${fileName} failed -- console output:`)
+    console.log(`${path} failed -- console output:`)
     console.log(new TextDecoder().decode(outputBuffer.bytes()))
   }
 
-  console.log(`finished ${fileName}`)
+  console.log(`finished ${path}`)
 
-  return [fileName, exitCode] as const
+  return [path, exitCode] as const
 }
 
 async function pipeThrough(reader: Deno.Reader, writer: Deno.Writer) {
