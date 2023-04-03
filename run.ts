@@ -4,19 +4,18 @@ import { PromiseQueue } from "./deps/pqueue.ts"
 import { Browser } from "./deps/puppeteer.ts"
 import { deferred } from "./deps/std/async.ts"
 import { Buffer, readLines } from "./deps/std/io.ts"
-import * as path from "./deps/std/path.ts"
 import { readerFromStreamReader, writeAll } from "./deps/std/streams.ts"
 
 export interface RunOptions {
-  paths: (readonly [dir: string, fileName: string])[]
+  paths: ReadonlyArray<string>
   concurrency: number
-  runner: (dir: string, fileName: string) => Promise<void>
+  runner: (filePath: string) => Promise<void>
   signal: AbortSignal
 }
 
 export async function run({ paths, concurrency, runner, signal }: RunOptions) {
   const runQueue = new PromiseQueue({ concurrency })
-  runQueue.addAll(paths.map(([dir, fileName]) => () => runner(dir, fileName)))
+  runQueue.addAll(paths.map((filePath) => () => runner(filePath)))
 
   signal.addEventListener("abort", () => runQueue.clear())
 
@@ -35,8 +34,8 @@ export async function runWithBrowser(
   const browser = await createBrowser()
   const consoleJs = await fetch(import.meta.resolve("./console.js")).then((r) => r.text())
 
-  return (async (dir: string, fileName: string) => {
-    const result = await executionWrapper(fileName, async (outputBuffer) => {
+  return (async (filePath: string) => {
+    const result = await executionWrapper(filePath, async (outputBuffer) => {
       const page = await browser.newPage()
       const buildResult = await esbuild.build({
         plugins: [
@@ -44,7 +43,7 @@ export async function runWithBrowser(
             importMapURL: importMapUrl,
           }) as any,
         ],
-        entryPoints: [path.join(dir, fileName)],
+        entryPoints: [filePath],
         bundle: true,
         write: false,
         format: "esm",
@@ -77,12 +76,12 @@ export interface RunWithDenoOptions {
 }
 
 export async function runWithDeno({ reloadUrl, results, signal }: RunWithDenoOptions) {
-  return (async (dir: string, fileName: string) => {
-    const result = await executionWrapper(fileName, async (outputBuffer) => {
+  return (async (filePath: string) => {
+    const result = await executionWrapper(filePath, async (outputBuffer) => {
       const command = new Deno.Command(Deno.execPath(), {
         args: ["run", "-A"]
           .concat(reloadUrl ? [`-r=${reloadUrl}`] : [])
-          .concat([`${dir}/${fileName}`]),
+          .concat([filePath]),
         stdout: "piped",
         stderr: "piped",
         signal,
