@@ -25,7 +25,7 @@ export async function run({ paths, concurrency, runner, signal }: RunOptions) {
 export interface RunWithBrowserOptions {
   createBrowser: () => Promise<Browser>
   importMapUrl?: URL
-  results: (readonly [path: string, exitCode: number])[]
+  results: (readonly [filePath: string, exitCode: number])[]
 }
 
 export async function runWithBrowser(
@@ -70,7 +70,7 @@ export async function runWithBrowser(
 }
 
 export interface RunWithDenoOptions {
-  results: (readonly [path: string, exitCode: number])[]
+  results: (readonly [filePath: string, exitCode: number])[]
   reloadUrl?: string
   signal: AbortSignal
 }
@@ -103,20 +103,20 @@ export async function runWithDeno({ reloadUrl, results, signal }: RunWithDenoOpt
   })
 }
 
-async function executionWrapper(path: string, run: (outputBuffer: Buffer) => Promise<number>) {
-  console.log(`running ${path}`)
+async function executionWrapper(filePath: string, run: (outputBuffer: Buffer) => Promise<number>) {
+  console.log(`running ${filePath}`)
 
   const outputBuffer = new Buffer()
   const exitCode = await run(outputBuffer)
 
   if (exitCode !== 0) {
-    console.log(`${path} failed -- console output:`)
+    console.log(`${filePath} failed -- console output:`)
     console.log(new TextDecoder().decode(outputBuffer.bytes()))
   }
 
-  console.log(`finished ${path}`)
+  console.log(`finished ${filePath}`)
 
-  return [path, exitCode] as const
+  return [filePath, exitCode] as const
 }
 
 async function pipeThrough(reader: Deno.Reader, writer: Deno.Writer) {
