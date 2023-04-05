@@ -103,7 +103,10 @@ export async function runWithDeno({ reloadUrl, results, signal }: RunWithDenoOpt
   })
 }
 
-async function executionWrapper(filePath: string, run: (outputBuffer: Buffer) => Promise<number>) {
+async function executionWrapper(
+  filePath: string,
+  run: (outputBuffer: Buffer) => Promise<number>,
+): Promise<[string, number]> {
   console.log(`running ${filePath}`)
 
   const outputBuffer = new Buffer()
@@ -116,7 +119,7 @@ async function executionWrapper(filePath: string, run: (outputBuffer: Buffer) =>
 
   console.log(`finished ${filePath}`)
 
-  return [filePath, exitCode] as const
+  return [filePath, exitCode]
 }
 
 async function pipeThrough(reader: Deno.Reader, writer: Deno.Writer) {
