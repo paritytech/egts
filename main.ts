@@ -1,5 +1,6 @@
 import puppeteer from "./deps/puppeteer.ts"
 import { parse } from "./deps/std/flags.ts"
+import * as fs from "./deps/std/fs.ts"
 import * as path from "./deps/std/path.ts"
 import { run, runWithBrowser, runWithDeno } from "./run.ts"
 
@@ -7,8 +8,7 @@ const flags = parse(Deno.args, {
   string: [
     "browser-exec-path",
     "concurrency",
-    "dir",
-    "filter",
+    "include",
     "ignore",
     "import-map",
     "output",
@@ -18,34 +18,40 @@ const flags = parse(Deno.args, {
   default: {
     "browser-exec-path": "/usr/bin/chromium",
     headless: true,
-    ignore: ".ignore",
+    ignore: ".trunignore",
   },
   alias: { reload: "r" },
 })
 
-const { ignore, dir, browser, output, headless } = flags
+const { ignore, browser, output, headless, include } = flags
 const importMap = flags["import-map"]
 const concurrency = flags.concurrency ? Number(flags.concurrency) : Infinity
-if (!dir) {
-  throw new Error("dir flag is required")
+if (!include) {
+  throw new Error("include flag is required")
 }
 
-const filter = flags.filter ? new Set(flags.filter.split(",")) : new Set()
+if (!path.isGlob(include)) {
+  throw new Error("include flag must be a glob pattern")
+}
 
 const controller = new AbortController()
 const { signal } = controller
 
-const ignoreFile = await Deno.readTextFile(path.join(dir, ignore))
-const ignoredFiles = new Set(ignoreFile.split("\n"))
+const skip = await Deno.stat(ignore)
+  .then(() => Deno.readTextFile(ignore))
+  .then((s) => s.split("\n").map((glob) => path.globToRegExp(glob)))
+  .catch(() => [])
 
-const sourceFileNames = Array.from(Deno.readDirSync(dir))
-  .filter((e) =>
-    /\.ts$/.test(e.name)
-    && e.isFile
-    && !ignoredFiles.has(e.name)
-    && (!filter.size || filter.has(e.name))
-  )
-  .map((f) => f.name)
+const paths = []
+for await (
+  const entry of fs.walk(".", {
+    match: [path.globToRegExp(include)],
+    skip,
+    includeDirs: false,
+  })
+) {
+  paths.push(entry.path)
+}
 
 async function shutdown(exitCode: number) {
   console.log(`\nshutting down with exitcode ${exitCode}`)
@@ -79,7 +85,9 @@ const results: [fileName: string, exitCode: number][] = []
 const runner = browser
   ? await runWithBrowser({ createBrowser, importMapUrl, results })
   : await runWithDeno({ reloadUrl: flags.reload, signal, results })
-const paths = sourceFileNames.map((fileName) => [dir, fileName] as const)
+
+console.log(`${paths.length} files found`)
+console.log(paths)
 
 await run({ paths, runner, concurrency, signal })
 const failedTests = results
