@@ -79,9 +79,7 @@ export async function runWithDeno({ reloadUrl, results, signal }: RunWithDenoOpt
   return (async (filePath: string) => {
     const result = await executionWrapper(filePath, async (outputBuffer) => {
       const command = new Deno.Command(Deno.execPath(), {
-        args: ["run", "-A"]
-          .concat(reloadUrl ? [`-r=${reloadUrl}`] : [])
-          .concat([filePath]),
+        args: ["run", "-A", ...reloadUrl ? [`-r=${reloadUrl}`] : [], filePath],
         stdout: "piped",
         stderr: "piped",
         signal,
