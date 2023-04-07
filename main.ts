@@ -1,3 +1,4 @@
+import * as esbuild from "./deps/esbuild.ts"
 import puppeteer from "./deps/puppeteer.ts"
 import { parse } from "./deps/std/flags.ts"
 import * as fs from "./deps/std/fs.ts"
@@ -57,6 +58,8 @@ async function shutdown(exitCode: number) {
   console.log(`\nshutting down with exitcode ${exitCode}`)
 
   self.addEventListener("unload", () => Deno.exit(exitCode))
+
+  esbuild.stop()
   controller.abort()
 }
 
