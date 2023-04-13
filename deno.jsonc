@@ -7,6 +7,7 @@
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true
   },
+  "importMap": "import_map.json",
   "include": ["."],
   "lock": false,
   "lint": {
