@@ -1,8 +1,7 @@
 import { which } from "./deps/deno_which.ts"
-import * as esbuild from "./deps/esbuild.ts"
 import { unimplemented } from "./deps/std/assert.ts"
 import { parse as parseFlags } from "./deps/std/flags.ts"
-import { dim, gray, green, red, yellow } from "./deps/std/fmt/colors.ts"
+import { blue, dim, gray, green, red, yellow } from "./deps/std/fmt/colors.ts"
 import { walk } from "./deps/std/fs.ts"
 import { Buffer, readLines } from "./deps/std/io.ts"
 import * as path from "./deps/std/path.ts"
@@ -57,6 +56,8 @@ const browser = typeof rest.browser === "string"
   : undefined
 if (browser === "") throw new Error(`Failed to detect chromium path. Specify via \`--browser\`.`)
 
+const controller = new AbortController()
+const { signal } = controller
 const queue: (() => Promise<void>)[] = []
 const failed: string[] = []
 let done = 0
@@ -100,14 +101,18 @@ let active = 0
       next()
     })
   }
+  if (active === 0) {
+    if (failed.length) {
+      console.log(`${red("Erroring examples")}: \n  - "${failed.join(`"\n  - "`)}"`)
+      Deno.exit(1)
+    } else {
+      console.log(blue("All examples passed"))
+      Deno.exit()
+    }
+  }
 })()
 
 globalThis.addEventListener("unload", () => {
-  esbuild.stop()
-  if (failed.length) {
-    console.log(`${red("Erroring examples")}: \n  - "${failed.join(`"\n  - "`)}"`)
-    Deno.exit(1)
-  }
 })
 
 async function runDeno(pathname: string, logs: Buffer): Promise<number> {
@@ -116,6 +121,7 @@ async function runDeno(pathname: string, logs: Buffer): Promise<number> {
     args: ["run", "-A", ...flags, pathname],
     stdout: "piped",
     stderr: "piped",
+    signal,
   }).spawn()
   const [{ code }] = await Promise.all([
     process.status,
