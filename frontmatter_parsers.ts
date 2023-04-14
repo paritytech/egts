@@ -17,7 +17,9 @@ export const description: FrontmatterParser<string> = (raw) => {
 const $stability = $.literalUnion(["experiment", "unstable", "nearing", "stable"])
 export const stability: FrontmatterParser<string> = (raw) => {
   $.assert($.str, raw)
-  const pieces = splitFirst(raw, " ")
+  let pieces = splitFirst(raw, " ")
+  if (pieces) $.assert($stability, pieces[0])
+  pieces = splitFirst(raw, "\n")
   if (pieces) $.assert($stability, pieces[0])
   else $.assert($stability, raw)
   return raw
