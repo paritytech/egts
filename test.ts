@@ -57,8 +57,6 @@ const browser = typeof rest.browser === "string"
   : undefined
 if (browser === "") throw new Error(`Failed to detect chromium path. Specify via \`--browser\`.`)
 
-const controller = new AbortController()
-const { signal } = controller
 const queue: (() => Promise<void>)[] = []
 const failed: string[] = []
 let done = 0
@@ -111,16 +109,12 @@ let active = 0
   }
 })()
 
-globalThis.addEventListener("unload", () => {
-})
-
 async function runDeno(pathname: string, logs: Buffer): Promise<number> {
   const flags = reload ? [`-r${reload === "" ? "" : `=${reload}`}`] : []
   const process = new Deno.Command(Deno.execPath(), {
     args: ["run", "-A", ...flags, pathname],
     stdout: "piped",
     stderr: "piped",
-    signal,
   }).spawn()
   const [{ code }] = await Promise.all([
     process.status,
