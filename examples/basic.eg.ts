@@ -28,7 +28,7 @@ console.log(result.frontmatter)
 
 // Write the result to the fs.
 await Deno.writeTextFile(
-  new URL(import.meta.resolve("./basic.md")),
+  new URL(import.meta.resolve("./basic.eg.md")),
   `# ${result.frontmatter.title}
 
 ${result.content}
