@@ -8,7 +8,7 @@ Bring imports into scope.
 
 ```ts
 import { compile } from "egts"
-import { date, description, tags, title } from "egts_frontmatter_parsers"
+import { date, description, stability, tags, title } from "egts_frontmatter_parsers"
 ```
 
 Compile an egts of this very script!
@@ -19,6 +19,7 @@ const result = compile("example.ts", await Deno.readTextFile(new URL(import.meta
   tags: tags(["example", "docs", "deno", "typescript"]),
   date: date("dd-MM-yyyy"),
   description,
+  stability,
 })
 ```
 

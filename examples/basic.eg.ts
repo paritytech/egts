@@ -4,6 +4,7 @@
  * @date 10-10-2023
  * @description This description can be very long and even span
  * multiple lines. It will be parsed as expected.
+ * @stability experiment
  */
 
 // Welcome to egts. This very script is an egts.
@@ -13,7 +14,7 @@
 
 // Bring imports into scope.
 import { compile } from "egts"
-import { date, description, tags, title } from "egts_frontmatter_parsers"
+import { date, description, stability, tags, title } from "egts_frontmatter_parsers"
 
 // Compile an egts of this very script!
 const result = compile("example.ts", await Deno.readTextFile(new URL(import.meta.url)), {
@@ -21,6 +22,7 @@ const result = compile("example.ts", await Deno.readTextFile(new URL(import.meta
   tags: tags(["example", "docs", "deno", "typescript"]),
   date: date("dd-MM-yyyy"),
   description,
+  stability,
 })
 
 // Log out the typed frontmatter.

@@ -2,7 +2,6 @@ import { titleCase } from "./deps/case.ts"
 import * as $ from "./deps/scale.ts"
 import * as datetime from "./deps/std/datetime.ts"
 import { FrontmatterParser } from "./frontmatter.ts"
-import { splitFirst } from "./util/splitFirst.ts"
 
 export const title: FrontmatterParser<string> = (raw) => {
   $.assert($.str, raw)
@@ -15,13 +14,8 @@ export const description: FrontmatterParser<string> = (raw) => {
 }
 
 const $stability = $.literalUnion(["experiment", "unstable", "nearing", "stable"])
-export const stability: FrontmatterParser<string> = (raw) => {
-  $.assert($.str, raw)
-  let pieces = splitFirst(raw, " ")
-  if (pieces) $.assert($stability, pieces[0])
-  pieces = splitFirst(raw, "\n")
-  if (pieces) $.assert($stability, pieces[0])
-  else $.assert($stability, raw)
+export const stability: FrontmatterParser<$.Native<typeof $stability>> = (raw) => {
+  $.assert($stability, raw)
   return raw
 }
 
