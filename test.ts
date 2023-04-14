@@ -10,11 +10,12 @@ import { parse as parseFrontmatter } from "./frontmatter.ts"
 
 const { _, reload, ...rest } = parseFlags(Deno.args, {
   alias: {
+    b: "browser",
     c: "concurrency",
     p: "project",
     r: "reload",
   },
-  string: ["concurrency", "project", "reload"],
+  string: ["browser", "concurrency", "project", "reload"],
   default: {
     concurrency: Infinity,
   },
@@ -29,7 +30,7 @@ for await (
     match: _.map((value) => {
       if (typeof value !== "string") {
         throw new Error(
-          `Specified an invalid include \`${pathname}\` (expected a glob or path to example file)`,
+          `Specified an invalid include \`${value}\` (expected a glob or path to example file)`,
         )
       }
       return path.isGlob(value) ? path.globToRegExp(value) : new RegExp(value)
@@ -83,9 +84,7 @@ include.forEach((pathname) =>
     if (code) {
       failed.push(pathname)
       console.log(red("Failed"), progress, quotedPathname)
-      console.groupCollapsed()
       console.log(new TextDecoder().decode(logs.bytes()))
-      console.groupEnd()
     } else {
       console.log(green("Passed"), progress, quotedPathname)
     }
