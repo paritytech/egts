@@ -59,7 +59,8 @@ if (browser === "") throw new Error(`Failed to detect chromium path. Specify via
 
 const queue: (() => Promise<void>)[] = []
 const failed: string[] = []
-let done = 0
+let passed = 0
+let skipped = 0
 
 include.forEach((pathname) =>
   queue.push(async () => {
@@ -71,14 +72,14 @@ include.forEach((pathname) =>
     const quotedPathname = `"${pathname}"`
     if (frontmatter.test_skip) {
       console.log(yellow("Skipping"), quotedPathname)
-      done++
+      skipped++
       return
     }
     console.log(gray("Testing"), quotedPathname)
     const logs = new Buffer()
     const code = await (browser ? runBrowser : runDeno)(pathname, logs)
-    done++
-    const progress = dim(`(${done}/${include.length})`)
+    passed++
+    const progress = dim(`(${passed + skipped}/${include.length})`)
     if (code) {
       failed.push(pathname)
       console.log(red("Failed"), progress, quotedPathname)
@@ -103,7 +104,7 @@ let active = 0
       console.log(`${red("Erroring examples")}: \n  - "${failed.join(`"\n  - "`)}"`)
       Deno.exit(1)
     } else {
-      console.log(blue("All examples passed"))
+      console.log(blue(`${passed} examples passed,`), gray(`${skipped} examples skipped`))
       Deno.exit()
     }
   }
