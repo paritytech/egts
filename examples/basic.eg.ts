@@ -17,7 +17,7 @@ import { compile } from "egts"
 import { date, description, stability, tags, title } from "egts_frontmatter_parsers"
 
 // Compile an egts of this very script!
-const result = compile("example.ts", await Deno.readTextFile(new URL(import.meta.url)), {
+const result = compile("basic.eg.ts", await Deno.readTextFile(new URL(import.meta.url)), {
   title,
   tags: tags(["example", "docs", "deno", "typescript"]),
   date: date("dd-MM-yyyy"),
