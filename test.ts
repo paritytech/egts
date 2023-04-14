@@ -104,10 +104,8 @@ let active = 0
       console.log(`${red("Erroring examples")}: \n  - "${failed.join(`"\n  - "`)}"`)
       Deno.exit(1)
     } else {
-      console.log(
-        passed && blue(`${passed} examples passed,`),
-        skipped && gray(`${skipped} examples skipped`),
-      )
+      if (passed) console.log(blue(`${passed} examples passed`))
+      if (skipped) console.log(gray(`${skipped} examples skipped`))
       Deno.exit()
     }
   }
