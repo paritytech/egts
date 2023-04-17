@@ -8,19 +8,29 @@ Bring imports into scope.
 
 ```ts
 import { compile } from "egts"
-import { date, description, stability, tags, title } from "egts_frontmatter_parsers"
+import {
+  date,
+  description,
+  stability,
+  tags,
+  title,
+} from "egts_frontmatter_parsers"
 ```
 
 Compile an egts of this very script!
 
 ```ts
-const result = compile("basic.eg.ts", await Deno.readTextFile(new URL(import.meta.url)), {
-  title,
-  tags: tags(["example", "docs", "deno", "typescript"]),
-  date: date("yyyy-MM-dd"),
-  description,
-  stability,
-})
+const result = compile(
+  "basic.eg.ts",
+  await Deno.readTextFile(new URL(import.meta.url)),
+  {
+    title,
+    tags: tags(["example", "docs", "deno", "typescript"]),
+    date: date("yyyy-MM-dd"),
+    description,
+    stability,
+  },
+)
 ```
 
 Log out the typed frontmatter.
@@ -48,9 +58,7 @@ request("a")
 request("b")
 request("c")
 
-
 request("%")
 request("$")
 request("&")
 ```
-
