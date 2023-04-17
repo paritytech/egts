@@ -9,14 +9,14 @@ export function parseFrontmatter<F extends Record<string, unknown>>(
   parsers: FrontmatterParsers<F>,
 ): ParseFrontmatterResult<F> {
   const fileMatch = rFrontmatterFile.exec(src)
-  if (!fileMatch) throw new Error("no frontmatter comment")
+  if (!fileMatch) throw new Error(`Could not extract module comment from "${pathname}".`)
   const { comment = "", body = "" } = fileMatch.groups ?? {}
   const commentContent = comment.replace(rLeadingAsterisk, "").trim()
   const tagsText = commentContent.split(rTagStart)
   const frontmatterRaw = Object.fromEntries(
     tagsText.map((pairText) => {
       const tagMatch = rTag.exec(pairText)
-      if (!tagMatch) throw new Error("invalid tag syntax")
+      if (!tagMatch) throw new Error(`Error when attempting to match tag in "${pathname}"`)
       const { key = "", value = "" } = tagMatch.groups ?? {}
       return [key, value.trim()]
     }),
