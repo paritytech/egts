@@ -27,7 +27,7 @@ for await (
     exts: [".ts", ".tsx"],
     followSymlinks: true,
     includeDirs: false,
-    match: _.map((value) => {
+    match: includePatterns.map((value) => {
       if (typeof value !== "string") {
         throw new Error(
           `Specified an invalid include \`${value}\` (expected a glob or path to example file)`,
