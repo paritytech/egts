@@ -17,7 +17,7 @@ Compile an egts of this very script!
 const result = compile("basic.eg.ts", await Deno.readTextFile(new URL(import.meta.url)), {
   title,
   tags: tags(["example", "docs", "deno", "typescript"]),
-  date: date("dd-MM-yyyy"),
+  date: date("yyyy-MM-dd"),
   description,
   stability,
 })
