@@ -8,7 +8,7 @@ import * as path from "./deps/std/path.ts"
 import { readerFromStreamReader, writeAll } from "./deps/std/streams.ts"
 import { parse as parseFrontmatter } from "./frontmatter.ts"
 
-const { _, reload, ...rest } = parseFlags(Deno.args, {
+const { _: includePatterns, reload, ...rest } = parseFlags(Deno.args, {
   alias: {
     b: "browser",
     c: "concurrency",
