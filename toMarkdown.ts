@@ -35,8 +35,6 @@ export function toMarkdown<F extends Record<string, unknown>>(
     return { kind: "code", content: line }
   })
 
-  console.log(lines)
-
   const filteredLines = []
   for (let i = 0; i < lines.length;) {
     const line = lines[i]!

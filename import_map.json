@@ -1,8 +1,7 @@
 {
   "scopes": {
     "examples/": {
-      "egts": "./mod.ts",
-      "egts_frontmatter_parsers": "./frontmatter_parsers.ts"
+      "egts": "./mod.ts"
     }
   }
 }

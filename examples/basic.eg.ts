@@ -13,8 +13,7 @@
 /// And the comments serve as ordinary lines of markdown body.
 
 /// Bring imports into scope.
-import { toMarkdown } from "egts"
-import { date, description, stability, tags, title } from "egts_frontmatter_parsers"
+import { date, description, stability, tags, title, toMarkdown } from "egts"
 
 /// Compile an egts of this very script!
 const result = toMarkdown("basic.eg.ts", await Deno.readTextFile(new URL(import.meta.url)), {

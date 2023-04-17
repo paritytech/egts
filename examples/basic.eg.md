@@ -10,8 +10,7 @@ And the comments serve as ordinary lines of markdown body.
 Bring imports into scope.
 
 ```ts
-import { toMarkdown } from "egts"
-import { date, description, stability, tags, title } from "egts_frontmatter_parsers"
+import { date, description, stability, tags, title, toMarkdown } from "egts"
 ```
 
 Compile an egts of this very script!
@@ -20,7 +19,7 @@ Compile an egts of this very script!
 const result = toMarkdown("basic.eg.ts", await Deno.readTextFile(new URL(import.meta.url)), {
   title,
   tags: tags(["example", "docs", "deno", "typescript"]),
-  date: date("dd-MM-yyyy"),
+  date: date("yyyy-MM-dd"),
   description,
   stability,
 })
