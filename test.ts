@@ -52,10 +52,7 @@ const _importMapURL = project.importMap
   ? path.toFileUrl(path.join(Deno.cwd(), project.importMap))
   : undefined
 
-const browser = typeof rest.browser === "string"
-  ? rest.browser === "" ? await which("chromium") : rest.browser
-  : undefined
-if (browser === "") throw new Error(`Failed to detect chromium path. Specify via \`--browser\`.`)
+const browser = rest.browser === undefined ? undefined : rest.browser || "chromium"
 
 const queue: (() => Promise<void>)[] = []
 const failed: string[] = []
