@@ -1,12 +1,12 @@
-import { which } from "./deps/deno_which.ts"
 import { unimplemented } from "./deps/std/assert.ts"
+import { deferred } from "./deps/std/async.ts"
 import { parse as parseFlags } from "./deps/std/flags.ts"
 import { blue, dim, gray, green, red, yellow } from "./deps/std/fmt/colors.ts"
 import { walk } from "./deps/std/fs.ts"
 import { Buffer, readLines } from "./deps/std/io.ts"
 import * as path from "./deps/std/path.ts"
 import { readerFromStreamReader, writeAll } from "./deps/std/streams.ts"
-import { parse as parseFrontmatter } from "./frontmatter.ts"
+import { parseFrontmatter as parseFrontmatter } from "./frontmatter.ts"
 
 const { _: includePatterns, reload, ...rest } = parseFlags(Deno.args, {
   alias: {
@@ -40,27 +40,26 @@ for await (
 
 const concurrency = +rest.concurrency
 
-const project = rest.project ?? await (async () => {
-  for (const pathname of ["deno.json", "deno.jsonc"]) {
-    try {
-      return JSON.parse(await Deno.readTextFile(pathname))
-    } catch (_e) {}
-  }
-  return
-})()
-const _importMapURL = project.importMap
-  ? path.toFileUrl(path.join(Deno.cwd(), project.importMap))
-  : undefined
+// const project = rest.project ?? await (async () => {
+//   for (const pathname of ["deno.json", "deno.jsonc"]) {
+//     try {
+//       return JSON.parse(await Deno.readTextFile(pathname))
+//     } catch (_e) {}
+//   }
+//   return
+// })()
+// const _importMapURL = project.importMap
+//   ? path.toFileUrl(path.join(Deno.cwd(), project.importMap))
+//   : undefined
 
 const browser = rest.browser === undefined ? undefined : rest.browser || "chromium"
 
-const queue: (() => Promise<void>)[] = []
 const failed: string[] = []
 let passed = 0
 let skipped = 0
 
-include.forEach((pathname) =>
-  queue.push(async () => {
+await runWithConcurrency(
+  include.map((pathname) => async () => {
     const { frontmatter } = parseFrontmatter(pathname, await Deno.readTextFile(pathname), {
       test_skip(value) {
         return value !== undefined
@@ -84,29 +83,18 @@ include.forEach((pathname) =>
     } else {
       console.log(green("Passed"), progress, quotedPathname)
     }
-  })
+  }),
+  concurrency,
 )
 
-let active = 0
-;(function next() {
-  while (active < concurrency && queue.length > 0) {
-    active++
-    queue.shift()!().finally(() => {
-      active--
-      next()
-    })
-  }
-  if (active === 0) {
-    if (failed.length) {
-      console.log(`${red("Erroring examples")}: \n  - "${failed.join(`"\n  - "`)}"`)
-      Deno.exit(1)
-    } else {
-      if (passed) console.log(blue(`${passed} examples passed`))
-      if (skipped) console.log(gray(`${skipped} examples skipped`))
-      Deno.exit()
-    }
-  }
-})()
+if (failed.length) {
+  console.log(`${red("Erroring examples")}: \n  - "${failed.join(`"\n  - "`)}"`)
+  Deno.exit(1)
+} else {
+  if (passed) console.log(blue(`${passed} examples passed`))
+  if (skipped) console.log(gray(`${skipped} examples skipped`))
+  Deno.exit()
+}
 
 async function runDeno(pathname: string, logs: Buffer): Promise<number> {
   const flags = reload ? [`-r${reload === "" ? "" : `=${reload}`}`] : []
@@ -128,4 +116,28 @@ async function runDeno(pathname: string, logs: Buffer): Promise<number> {
 
 async function runBrowser(_pathname: string, _logs: Buffer) {
   return unimplemented()
+}
+
+function runWithConcurrency<T>(fns: Array<() => Promise<T>>, concurrency: number) {
+  const queue = [...fns]
+  let running = 0
+  const results: Promise<T>[] = []
+  const final = deferred<T[]>()
+  flushQueue()
+  return final
+
+  function flushQueue() {
+    for (; running < concurrency; running++) {
+      if (!queue.length) {
+        final.resolve(Promise.all(results))
+        return
+      }
+      const promise = fns.shift()!()
+      results.push(promise)
+      promise.finally(() => {
+        running--
+        flushQueue()
+      })
+    }
+  }
 }
