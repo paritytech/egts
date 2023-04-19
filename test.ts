@@ -118,7 +118,7 @@ async function runBrowser(_pathname: string, _logs: Buffer) {
   return unimplemented()
 }
 
-function runWithConcurrency<T>(fns: Array<() => Promise<T>>, concurrency: number) {
+function runWithConcurrency<T>(fns: ReadonlyArray<() => Promise<T>>, concurrency: number) {
   const queue = [...fns]
   let running = 0
   const results: Promise<T>[] = []
@@ -132,7 +132,7 @@ function runWithConcurrency<T>(fns: Array<() => Promise<T>>, concurrency: number
         final.resolve(Promise.all(results))
         return
       }
-      const promise = fns.shift()!()
+      const promise = queue.shift()!()
       results.push(promise)
       promise.finally(() => {
         running--
