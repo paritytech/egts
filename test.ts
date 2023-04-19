@@ -6,7 +6,7 @@ import { walk } from "./deps/std/fs.ts"
 import { Buffer, readLines } from "./deps/std/io.ts"
 import * as path from "./deps/std/path.ts"
 import { readerFromStreamReader, writeAll } from "./deps/std/streams.ts"
-import { parseFrontmatter as parseFrontmatter } from "./frontmatter.ts"
+import { parseFrontmatter } from "./frontmatter.ts"
 
 const { _: includePatterns, reload, ...rest } = parseFlags(Deno.args, {
   alias: {

@@ -1,7 +1,7 @@
 const rFrontmatterFile = /^\s*\/\*\*(?<comment>.+?)\*\/\s*(?<body>.*)$/s
 const rLeadingAsterisk = /^\s*(?:\* ?)?/gm
 const rTagStart = /^(?=@\w+)/m
-const rTag = /^@(?<key>\w+)\s+(?<value>.*)/s
+const rTag = /^@(?<key>\w+)(\s+(?<value>.*))?$/s
 
 export function parseFrontmatter<F extends Record<string, unknown>>(
   pathname: string,
