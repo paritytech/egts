@@ -7,6 +7,7 @@
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true
   },
+  "importMap": "import_map.json",
   "include": ["."],
   "lock": false,
   "lint": {
@@ -28,6 +29,7 @@
     }
   },
   "tasks": {
-    "udd": "deno run -A _tasks/udd.ts"
+    "udd": "deno run -A _tasks/udd.ts",
+    "moderate": "deno run -A https://deno.land/x/moderate@0.0.5/mod.ts && dprint fmt"
   }
 }

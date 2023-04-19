@@ -1,0 +1,7 @@
+{
+  "scopes": {
+    "examples/": {
+      "egts": "./mod.ts"
+    }
+  }
+}
