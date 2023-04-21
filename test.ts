@@ -8,13 +8,14 @@ import * as path from "./deps/std/path.ts"
 import { readerFromStreamReader, writeAll } from "./deps/std/streams.ts"
 import { parseFrontmatter } from "./frontmatter.ts"
 
-const { _: includePatterns, reload, ...rest } = parseFlags(Deno.args, {
+const { _: includePatterns, reload, unskip, ...rest } = parseFlags(Deno.args, {
   alias: {
     b: "browser",
     c: "concurrency",
     p: "project",
     r: "reload",
   },
+  boolean: ["unskip"],
   string: ["browser", "concurrency", "project", "reload"],
   default: {
     concurrency: Infinity,
@@ -66,7 +67,7 @@ await runWithConcurrency(
       },
     })
     const quotedPathname = `"${pathname}"`
-    if (frontmatter.test_skip) {
+    if (!unskip && frontmatter.test_skip) {
       console.log(yellow("Skipping"), quotedPathname)
       skipped++
       return
