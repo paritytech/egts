@@ -8,14 +8,14 @@ import * as path from "./deps/std/path.ts"
 import { readerFromStreamReader, writeAll } from "./deps/std/streams.ts"
 import { parseFrontmatter } from "./frontmatter.ts"
 
-const { _: includePatterns, reload, unskip, ...rest } = parseFlags(Deno.args, {
+const { _: includePatterns, reload, "no-skip": noSkip, ...rest } = parseFlags(Deno.args, {
   alias: {
     b: "browser",
     c: "concurrency",
     p: "project",
     r: "reload",
   },
-  boolean: ["unskip"],
+  boolean: ["no-skip"],
   string: ["browser", "concurrency", "project", "reload"],
   default: {
     concurrency: Infinity,
@@ -67,12 +67,11 @@ await runWithConcurrency(
       },
     })
     const quotedPathname = `"${pathname}"`
-    if (!unskip && frontmatter.test_skip) {
-      console.log(yellow("Skipping"), quotedPathname)
+    if (!noSkip && frontmatter.test_skip) {
+      console.log(yellow("Skipped"), quotedPathname)
       skipped++
       return
     }
-    console.log(gray("Testing"), quotedPathname)
     const logs = new Buffer()
     const code = await (browser ? runBrowser : runDeno)(pathname, logs)
     passed++
