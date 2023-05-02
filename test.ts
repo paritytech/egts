@@ -72,6 +72,7 @@ await runWithConcurrency(
       skipped++
       return
     }
+    console.log(gray("Testing"), quotedPathname)
     const logs = new Buffer()
     const code = await (browser ? runBrowser : runDeno)(pathname, logs)
     passed++
