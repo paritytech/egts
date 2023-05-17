@@ -9,7 +9,7 @@ import { runWithConcurrency } from "../util.ts"
 
 const cmd = new Command()
   .name("deno")
-  .option("-b, --concurrency <concurrency:integer>", "concurrency", { default: Infinity })
+  .option("-c, --concurrency <concurrency:integer>", "concurrency", { default: Infinity })
   .option("-r, --reload <reload>", "reload")
   .option("--no-skip", "ignore skip frontmatter")
   .arguments("<includePatterns..>")
@@ -37,7 +37,6 @@ const cmd = new Command()
 
     await runWithConcurrency(
       include.map((pathname) => async () => {
-        console.log("pathname", pathname)
         const { frontmatter } = parseFrontmatter(pathname, await Deno.readTextFile(pathname), {
           test_skip(value) {
             return value !== undefined
