@@ -1,4 +1,4 @@
-import { deferred } from "../deps/std/async.ts"
+import { deferred } from "./deps/std/async.ts"
 
 export function runWithConcurrency<T>(fns: ReadonlyArray<() => Promise<T>>, concurrency: number) {
   const queue = [...fns]
