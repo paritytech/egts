@@ -1,6 +1,8 @@
-import browser from "./cli/browser.ts"
+import runBrowser from "./cli/browser.ts"
 import runDeno from "./cli/deno.ts"
+import runNode from "./cli/node.ts"
 import { Command } from "./deps/cliffy.ts"
+import * as esbuild from "./deps/esbuild.ts"
 import { blue, dim, gray, green, red, yellow } from "./deps/std/fmt/colors.ts"
 import { walk } from "./deps/std/fs.ts"
 import { Buffer } from "./deps/std/io.ts"
@@ -80,6 +82,10 @@ const globalRunner = <T extends GlobalRunnerParams>(f: Run<T>) => {
   }
 }
 
+self.addEventListener("unload", () => {
+  esbuild.stop()
+})
+
 await new Command()
   .name("egts")
   .description("Example-related utilities used in Capi")
@@ -93,6 +99,15 @@ await new Command()
       .arguments("<includePatterns..>")
       .option("-r, --reload <reload>", "reload")
       .action(globalRunner(runDeno))
-      .command("browser", browser),
+      .command("node")
+      .arguments("<includePatterns..>")
+      .option("-r, --import-map <import-map>", "import map", { required: true })
+      .action(globalRunner(runNode))
+      .command("browser")
+      .arguments("<includePatterns..>")
+      .option("-b, --browser <binary>", "browser binary")
+      .option("-p, --project <project>", "project", { required: true })
+      .option("-r, --reload <reload>", "reload", { required: true })
+      .action(globalRunner(runBrowser)),
   )
   .parse(Deno.args)

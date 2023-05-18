@@ -1,13 +1,16 @@
-import { unimplemented } from "https://deno.land/std@0.182.0/testing/asserts.ts"
-import { Command } from "../deps/cliffy.ts"
+import { unimplemented } from "../deps/std/assert.ts"
+import { Buffer } from "../deps/std/io.ts"
 
-const cmd = new Command()
-  .name("browser")
-  .option("-b, --browser", "browser binary")
-  .option("-p, --project <project>", "project")
-  .option("-r, --reload <reload>", "reload")
-  .action(() => {
+export interface BrowserRunFlags {
+  browser?: string | undefined
+  project: string
+  reload: string
+}
+
+export default function run(_: BrowserRunFlags) {
+  return async (pathname: string, logs: Buffer): Promise<number> => {
     unimplemented()
+
     // TODO
     // const project = rest.project ?? await (async () => {
     //   for (const pathname of ["deno.json", "deno.jsonc"]) {
@@ -20,6 +23,5 @@ const cmd = new Command()
     // const _importMapURL = project.importMap
     //   ? path.toFileUrl(path.join(Deno.cwd(), project.importMap))
     //   : undefined
-  })
-
-export default cmd
+  }
+}
