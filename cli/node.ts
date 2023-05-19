@@ -1,31 +1,13 @@
-import * as esbuild from "../deps/esbuild.ts"
-import { denoPlugins } from "../deps/esbuild_deno_loader.ts"
 import { Buffer, readLines } from "../deps/std/io.ts"
 import { readerFromStreamReader, writeAll } from "../deps/std/streams.ts"
 
 export interface NodeRunFlags {
-  importMap: string
 }
 
-export default function run({ importMap }: NodeRunFlags) {
+export default function run({}: NodeRunFlags) {
   return async (pathname: string, logs: Buffer): Promise<number> => {
-    const dir = await Deno.makeTempDir()
-    const output = await Deno.makeTempFile({ dir, suffix: ".mjs" })
-    await esbuild.build({
-      plugins: [
-        ...denoPlugins({
-          importMapURL: `file://${Deno.cwd()}/${importMap}`,
-        }),
-      ],
-      entryPoints: [pathname],
-      bundle: true,
-      write: true,
-      format: "esm",
-      outfile: output,
-    })
-
     const process = new Deno.Command("node", {
-      args: [output],
+      args: [pathname],
       stdout: "piped",
       stderr: "piped",
     }).spawn()

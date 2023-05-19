@@ -2,7 +2,6 @@ import runBrowser from "./cli/browser.ts"
 import runDeno from "./cli/deno.ts"
 import runNode from "./cli/node.ts"
 import { Command } from "./deps/cliffy.ts"
-import * as esbuild from "./deps/esbuild.ts"
 import { blue, dim, gray, green, red, yellow } from "./deps/std/fmt/colors.ts"
 import { walk } from "./deps/std/fs.ts"
 import { Buffer } from "./deps/std/io.ts"
@@ -24,7 +23,7 @@ const globalRunner = <T extends GlobalRunnerParams>(f: Run<T>) => {
     const include: string[] = []
     for await (
       const { path: pathname } of walk(".", {
-        exts: [".ts", ".tsx"],
+        exts: [".ts", ".tsx", ".js"],
         followSymlinks: true,
         includeDirs: false,
         match: includePatterns.split(" ").map((value) => {
@@ -82,10 +81,6 @@ const globalRunner = <T extends GlobalRunnerParams>(f: Run<T>) => {
   }
 }
 
-self.addEventListener("unload", () => {
-  esbuild.stop()
-})
-
 await new Command()
   .name("egts")
   .description("Example-related utilities used in Capi")
@@ -101,7 +96,6 @@ await new Command()
       .action(globalRunner(runDeno))
       .command("node")
       .arguments("<includePatterns..>")
-      .option("-r, --import-map <import-map>", "import map", { required: true })
       .action(globalRunner(runNode))
       .command("browser")
       .arguments("<includePatterns..>")
