@@ -2,12 +2,17 @@ import runBrowser from "./cli/browser.ts"
 import runDeno from "./cli/deno.ts"
 import runNode from "./cli/node.ts"
 import { Command } from "./deps/cliffy.ts"
+import * as esbuild from "./deps/esbuild.ts"
 import { blue, dim, gray, green, red, yellow } from "./deps/std/fmt/colors.ts"
 import { walk } from "./deps/std/fs.ts"
 import { Buffer } from "./deps/std/io.ts"
 import * as path from "./deps/std/path.ts"
 import { parseFrontmatter } from "./frontmatter.ts"
 import { runWithConcurrency } from "./util.ts"
+
+self.addEventListener("unload", () => {
+  esbuild.stop()
+})
 
 interface GlobalRunnerParams {
   concurrency: number
@@ -100,8 +105,8 @@ await new Command()
       .command("browser")
       .arguments("<includePatterns..>")
       .option("-b, --browser <binary>", "browser binary")
-      .option("-p, --project <project>", "project", { required: true })
-      .option("-r, --reload <reload>", "reload", { required: true })
+      // .option("-p, --project <project>", "project", { required: true })
+      // .option("-r, --reload <reload>", "reload", { required: true })
       .action(globalRunner(runBrowser)),
   )
   .parse(Deno.args)
