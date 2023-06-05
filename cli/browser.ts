@@ -2,7 +2,7 @@ import { unimplemented } from "../deps/std/assert.ts"
 import { Buffer } from "../deps/std/io.ts"
 
 export interface BrowserRunFlags {
-  browser?: string | undefined
+  browser?: string
   project: string
   reload: string
 }

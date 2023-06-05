@@ -1,6 +1,5 @@
 import runBrowser from "./cli/browser.ts"
-import runDeno from "./cli/deno.ts"
-import runNode from "./cli/node.ts"
+import { runDeno, runNode } from "./cli/process.ts"
 import { Command } from "./deps/cliffy.ts"
 import { blue, dim, gray, green, red, yellow } from "./deps/std/fmt/colors.ts"
 import { walk } from "./deps/std/fs.ts"
