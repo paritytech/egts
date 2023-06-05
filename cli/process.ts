@@ -13,7 +13,7 @@ export function runDeno({ reload }: DenoRunFlags) {
       stdout: "piped",
       stderr: "piped",
     }).spawn()
-    return runProcess(process, logs)
+    return collectResults(process, logs)
   }
 }
 
@@ -24,11 +24,11 @@ export function runNode({}: Record<string, unknown>) {
       stdout: "piped",
       stderr: "piped",
     }).spawn()
-    return runProcess(process, logs)
+    return collectResults(process, logs)
   }
 }
 
-async function runProcess(process: Deno.ChildProcess, logs: Buffer) {
+async function collectResults(process: Deno.ChildProcess, logs: Buffer) {
   const [{ code }] = await Promise.all([
     process.status,
     ...[process.stdout, process.stderr].map(async (stream) => {
