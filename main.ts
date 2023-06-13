@@ -17,7 +17,7 @@ type Run<T extends GlobalRunnerParams> = (
   t: Omit<T, keyof GlobalRunnerParams>,
 ) => (pathname: string, logs: Buffer) => Promise<number>
 
-const globalRunner = <T extends GlobalRunnerParams>(f: Run<T>) => {
+const globalRunner = <T extends GlobalRunnerParams>(f: Run<T>, skipArg: string) => {
   return async ({ concurrency, skip, ...rest }: T, includePatterns: string) => {
     const include: string[] = []
     for await (
@@ -44,7 +44,8 @@ const globalRunner = <T extends GlobalRunnerParams>(f: Run<T>) => {
       include.map((pathname) => async () => {
         const { frontmatter } = parseFrontmatter(pathname, await Deno.readTextFile(pathname), {
           test_skip(value) {
-            return value !== undefined
+            const skipArgs = new Set(value?.split(" ") ?? [])
+            return value === "" || skipArgs.has(skipArg)
           },
         })
         const quotedPathname = `"${pathname}"`
@@ -92,15 +93,15 @@ await new Command()
       .command("deno")
       .arguments("<includePatterns..>")
       .option("-r, --reload <reload>", "reload")
-      .action(globalRunner(runDeno))
+      .action(globalRunner(runDeno, "deno"))
       .command("node")
       .arguments("<includePatterns..>")
-      .action(globalRunner(runNode))
+      .action(globalRunner(runNode, "node"))
       .command("browser")
       .arguments("<includePatterns..>")
       .option("-b, --browser <binary>", "browser binary")
       .option("-p, --project <project>", "project", { required: true })
       .option("-r, --reload <reload>", "reload", { required: true })
-      .action(globalRunner(runBrowser)),
+      .action(globalRunner(runBrowser, "browser")),
   )
   .parse(Deno.args)
