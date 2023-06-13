@@ -44,7 +44,8 @@ const globalRunner = <T extends GlobalRunnerParams>(f: Run<T>, skipArg: string) 
       include.map((pathname) => async () => {
         const { frontmatter } = parseFrontmatter(pathname, await Deno.readTextFile(pathname), {
           test_skip(value) {
-            return value === "" || value === skipArg
+            const skipArgs = new Set(value?.split(" ") ?? [])
+            return value === "" || skipArgs.has(skipArg)
           },
         })
         const quotedPathname = `"${pathname}"`
